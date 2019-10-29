@@ -3,21 +3,22 @@
 import pandas as pd
 import numpy as np
 import scipy.optimize as opt
+import yfinance as yf
 import cvxpy as cvx
 
 
-def get_timeseries(symbol: str):
+def get_timeseries(symbol: str) -> pd.Series:
     filename = f"data/{symbol}.csv"
     t = pd.read_csv(filename, index_col="Date", parse_dates=["Date"])["Adj Close"]
     return t
 
 
-def get_return(t: pd.Series, nb_days=365, weeks=None, months=None):
+def get_return(t: pd.Series, nb_days=365, weeks=None, months=None) -> pd.Series:
     if months is not None:
         weeks = months * 4
     if weeks is not None:
         nb_days = weeks * 7
-    
+
     # Ajout d'un index sur tous les jours. On assume que les rendements
     # sont persistés, par exemple ceux du vendredi égalent ceux du samedi et
     # du dimanche
