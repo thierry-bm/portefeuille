@@ -10,6 +10,7 @@ import cvxpy as cvx
 def get_timeseries(symbol: str) -> pd.Series:
     filename = f"data/{symbol}.csv"
     t = pd.read_csv(filename, index_col="Date", parse_dates=["Date"])["Adj Close"]
+    t.name = symbol
     return t
 
 
@@ -34,33 +35,33 @@ def get_return(t: pd.Series, nb_days=365, weeks=None, months=None) -> pd.Series:
     return r
 
 
-universe = ["XBB.TO", "XDV.TO", "XIU.TO", "MSFT"]
+# universe = ["XBB.TO", "XDV.TO", "XIU.TO", "MSFT"]
 
-tss = {tckr: get_timeseries(tckr) for tckr in universe}
-rs = {tckr: get_return(ts) for tckr, ts in tss.items()}
+# tss = {tckr: get_timeseries(tckr) for tckr in universe}
+# rs = {tckr: get_return(ts) for tckr, ts in tss.items()}
 
-matrix = pd.DataFrame()
-t = pd.DataFrame(dict(zip(universe, rs)))
+# matrix = pd.DataFrame()
+# t = pd.DataFrame(dict(zip(universe, rs)))
 
-mu = t.mean().values
-sigma = t.cov().values
-
-
-def minus_markowitz(w):
-    print(w)
-    utility = mu @ w - 0.01 * w @ sigma @ w
-    return -utility
+# mu = t.mean().values
+# sigma = t.cov().values
 
 
-p = len(universe)
-w = cvx.Variable(p)
-gamma = cvx.Parameter(nonneg=True)
-s0 = cvx.Parameter(nonneg=True)
+# def minus_markowitz(w):
+#     print(w)
+#     utility = mu @ w - 0.01 * w @ sigma @ w
+#     return -utility
 
-objective = mu.T * w - gamma * cvx.quad_form(w, sigma)
-constraints = [cvx.sum(w) == 1, w >= 0]
-prob = cvx.Problem(cvx.Maximize(objective), constraints)
-reg_prob = cvx.Problem(cvx.Maximize(objective - s0 * cvx.norm(w, 1)), constraints)
+
+# p = len(universe)
+# w = cvx.Variable(p)
+# gamma = cvx.Parameter(nonneg=True)
+# s0 = cvx.Parameter(nonneg=True)
+
+# objective = mu.T * w - gamma * cvx.quad_form(w, sigma)
+# constraints = [cvx.sum(w) == 1, w >= 0]
+# prob = cvx.Problem(cvx.Maximize(objective), constraints)
+# reg_prob = cvx.Problem(cvx.Maximize(objective - s0 * cvx.norm(w, 1)), constraints)
 
 
 # opt.minimize(minus_markowitz, x0=np.array([0, 0, 0, 0]))

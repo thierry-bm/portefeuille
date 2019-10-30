@@ -18,5 +18,6 @@ static_information = pd.read_excel("Data/ProductScreener.xlsx", index_col=0)
 # librairie yfinance. Il faudrait peut être aussi réfléchir à comment mettre au
 # point des stratégies plus élaborées.
 
-# ou plutôt: max_w EU(f(w)^T R) - reg(w) 
-# Par contre on s'éloigne alors du cadre théorique que j'avais mis en place.
+# Paradoxe: En ce moment, aucun rebalancement ne serait nécessaire, les
+# conditions n'évoluant pas. Il faut donc trouver un moyen d'incorporer
+# l'information actuelle.
