@@ -24,7 +24,6 @@ def np_objective(w: np.ndarray, l=0.1):
     return obj
 
 
-
 # opt.minimize(minus_objective, x0=np.array([0, 0, 0]))
 
 n, p = t.shape
@@ -35,6 +34,7 @@ w = cp.Variable(p)
 gamma = cp.Parameter(nonneg=True)
 objective = 1 / n * cp.sum(cp_u(cp.matmul(t, w))) - 1 / 2 * gamma * cp.norm2(w) ** 2
 constraints = [cp.sum(w) == 1, w >= 0]
+
 
 def solve(gamm):
     gamma.value = gamm

@@ -2,7 +2,7 @@ import numpy as np
 import cvxpy as cp
 
 
-def get_utility(beta0=4):
+def get_utility(beta0=2):
     """Donné une liste de tuples (r_0, \partial r) retourne une fonction 
     d'utilité linéaire par pièce selon les critères demandés.
     """
@@ -22,8 +22,8 @@ def get_utility(beta0=4):
     return u
 
 
-def get_cvx_utility(beta0=4):
-    r1 = -3.5
+def get_cvx_utility(beta0=2):
+    r1 = -2.5
     beta1 = 1
     beta2 = 0.6
     beta3 = 0.3
@@ -38,7 +38,8 @@ def get_cvx_utility(beta0=4):
     return u
 
 
-# u = get_utility()
-# plt.plot(r, u(r))
-# # plt.ylim(-5, 5)
+u = get_utility()
+r = np.linspace(-5,5,100)
+plt.plot(r, u(r))
+# plt.ylim(-5, 5)
 
