@@ -23,10 +23,9 @@ def reacquire_data(end_dt: str):
     data.to_excel("Data/HistoricalData.xlsx")
 
 
-def get_data():
-    data = pd.read_excel(
-        "data/HistoricalData.xlsx", index_col=0, parse_dates=True
-    )
+def get_data() -> pd.DataFrame:
+    data = pd.read_excel("data/HistoricalData.xlsx", index_col=0, parse_dates=True)
+    return data
 
 
 # En ce moment, on entraînerait sur des rendements d'une période pré-déterminée,

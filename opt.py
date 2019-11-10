@@ -24,10 +24,8 @@ def np_objective(w: np.ndarray, l=0.1):
     return obj
 
 
-# opt.minimize(minus_objective, x0=np.array([0, 0, 0]))
 
 n, p = t.shape
-
 
 cp_u = get_cvx_utility()
 w = cp.Variable(p)
