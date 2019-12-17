@@ -1,5 +1,6 @@
 import numpy as np
 import cvxpy as cp
+import matplotlib.pyplot as plt
 
 
 def get_utility(beta0=2):

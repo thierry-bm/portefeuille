@@ -8,6 +8,7 @@ import cvxpy as cp
 
 from static import get_data
 from opt import get_cvx_utility
+from utility import get_utility
 
 
 def get_timeseries(symbol: str) -> pd.Series:
@@ -17,7 +18,7 @@ def get_timeseries(symbol: str) -> pd.Series:
     return t
 
 
-def get_target_return(t: pd.Series, nb_days=365, weeks=None, months=None) -> pd.Series:
+def get_target_return(t: pd.Series, nb_days=365, weeks=None, months=None, trim_data=False) -> pd.Series:
     if months is not None:
         weeks = months * 4
     if weeks is not None:
@@ -36,10 +37,11 @@ def get_target_return(t: pd.Series, nb_days=365, weeks=None, months=None) -> pd.
     r = (1 + r) ** (365 / nb_days) - 1
     r = 100 * r
 
-    if isinstance(r, pd.Series):
-        r = r[~r.isna()]
-    elif isinstance(r, pd.DataFrame):
-        r = r[~r.isna().any(axis=1)]
+    if trim_data:
+        if isinstance(r, pd.Series):
+            r = r[~r.isna()]
+        elif isinstance(r, pd.DataFrame):
+            r = r[~r.isna().any(axis=1)]
     return r
 
 
@@ -63,21 +65,27 @@ def get_feature_return(t: pd.Series, nb_days=[1, 7, 30]):
     u = pd.DataFrame(u)
     return u
 
+def main():
+    u = get_utility()
+    t = get_data()
+    v = get_target_return(t, months=12)
+    l = v.apply(u).mean(axis=0)
+    l.sort_values()
 
-data = get_data()
-r = get_target_return(data)
+# data = get_data()
+# r = get_target_return(data)
 
-cp_u = get_cvx_utility()
+# cp_u = get_cvx_utility()
 
-n, p = t.shape
-w = cp.Variable(p)
-gamma = cp.Parameter(nonneg=True)
-objective = 1 / n * cp.sum(cp_u(cp.matmul(t, w)))  # - gamma * cp.norm1(w)
-constraints = [cp.sum(w) == 1, w >= 0]
-prob = cp.Problem(cp.Maximize(objective), constraints)
+# n, p = t.shape
+# w = cp.Variable(p)
+# gamma = cp.Parameter(nonneg=True)
+# objective = 1 / n * cp.sum(cp_u(cp.matmul(t, w)))  # - gamma * cp.norm1(w)
+# constraints = [cp.sum(w) == 1, w >= 0]
+# prob = cp.Problem(cp.Maximize(objective), constraints)
 
-gamma.value = 5
-prob.solve(verbose=True, solver="SCS")
+# gamma.value = 5
+# prob.solve(verbose=True, solver="SCS")
 
 # Un autre objectif serait de calibrer l'objectif pour battre le SP500 sur une
 # courbe d'utilité.
