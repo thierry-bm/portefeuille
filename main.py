@@ -7,18 +7,26 @@ import yfinance as yf
 import cvxpy as cp
 
 from static import get_data
-from opt import get_cvx_utility
+# from opt import get_cvx_utility
 from utility import get_utility
 
 
 def get_timeseries(symbol: str) -> pd.Series:
     filename = f"data/{symbol}.csv"
-    t = pd.read_csv(filename, index_col="Date", parse_dates=["Date"])["Adj Close"]
+    t = pd.read_csv(filename, index_col="Date", parse_dates=["Date"])[
+        "Adj Close"
+    ]
     t.name = symbol
     return t
 
 
-def get_target_return(t: pd.Series, nb_days=365, weeks=None, months=None, trim_data=False) -> pd.Series:
+def get_target_return(
+    t: pd.Series, nb_days=365, weeks=None, months=None, trim_data=False
+) -> pd.Series:
+    """Retourne le rendement obtenu si par exemple on achète le titre à une certaine
+    date et qu'on le revend nb_days plus tard.
+    """
+
     if months is not None:
         weeks = months * 4
     if weeks is not None:
@@ -36,6 +44,18 @@ def get_target_return(t: pd.Series, nb_days=365, weeks=None, months=None, trim_d
     # Annualisation
     r = (1 + r) ** (365 / nb_days) - 1
     r = 100 * r
+
+    # On peut maintenant supprimer l'index contenant les fds pour ne conserver que 
+    # jours définis par t. 
+    r_idx = r.index.intersection(t.index)
+    r = r.loc[r_idx]
+
+    # On conserve uniquement les rendements qui contiennent de l'information Par ex. si
+    # t donne de l'information jusqu'au 2019-10-31 et que nb_days = 365, alors on peut
+    # s'attendre à ce que r soit défini jusqu'à environ 2018-10-31
+    # On détermine les lignes telles que tous les rendements sont N/A, puis on les
+    # supprime.
+    r = r[~r.isna().all(axis=1)]
 
     if trim_data:
         if isinstance(r, pd.Series):
@@ -65,12 +85,14 @@ def get_feature_return(t: pd.Series, nb_days=[1, 7, 30]):
     u = pd.DataFrame(u)
     return u
 
+
 def main():
     u = get_utility()
     t = get_data()
     v = get_target_return(t, months=12)
     l = v.apply(u).mean(axis=0)
     l.sort_values()
+
 
 # data = get_data()
 # r = get_target_return(data)
